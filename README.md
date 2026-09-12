@@ -75,10 +75,7 @@ docker compose ps #make sure everything works
 
 
 # Extra problems
-
-Write side problems here. For example: your laptop, a wrong config change, or internet.
-Write how much time each one took.
-
-For example:
-+ Weak Internet connection (10 min)
-
+i challenged myself to automate deploying an app using ansible this is my repo check it out:
+https://github.com/aliSadrSharif/ansibleLab
+it setups server, deploy frontend, backend and database with docker compose, adds ssl/tls self-signed and expose it via nginx service. more detailes are writen in README.md
+i would be thankfull if you give a star for my repo
