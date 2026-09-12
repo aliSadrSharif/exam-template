@@ -1,0 +1,27 @@
+---
+# Versions
+prometheus_version: "2.53.1"
+node_exporter_version: "1.8.2"
+
+# Ports
+prometheus_port: 9090
+node_exporter_port: 9100
+grafana_port: 3000
+
+# System users
+prometheus_user: prometheus
+node_exporter_user: node_exporter
+
+# Paths
+prometheus_install_dir: /opt/prometheus
+prometheus_config_dir: /etc/prometheus
+prometheus_data_dir: /var/lib/prometheus
+node_exporter_install_dir: /opt/node_exporter
+
+grafana_dashboards_dir: /var/lib/grafana/dashboards
+
+# CPU architecture used in download URLs (amd64/arm64)
+go_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+go_arch: "{{ go_arch_map[ansible_architecture] | default('amd64') }}"

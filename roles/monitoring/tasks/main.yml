@@ -1,5 +1,24 @@
 ---
-# Install Monitoring. It must listen .
-# Add Prometheus as a datasource.
-# Add one dashboard with CPU and memory.
-[]
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - tar
+      - apt-transport-https
+      - software-properties-common
+      - gnupg2
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install and configure node_exporter
+  ansible.builtin.import_tasks: node_exporter.yml
+  tags: [node_exporter]
+
+- name: Install and configure Prometheus
+  ansible.builtin.import_tasks: install_prometheus.yml
+  tags: [prometheus]
+
+- name: Install and configure Grafana
+  ansible.builtin.import_tasks: grafana.yml
+  tags: [grafana]

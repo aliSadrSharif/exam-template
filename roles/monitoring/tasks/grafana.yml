@@ -1,0 +1,83 @@
+---
+- name: Create keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Add Grafana GPG key
+  ansible.builtin.command: curl -fsSL -o /etc/apt/keyrings/grafana.asc https://apt.grafana.com/gpg.key
+  args:
+    creates: /etc/apt/keyrings/grafana.asc
+
+- name: Set permissions on Grafana GPG key
+  ansible.builtin.file:
+    path: /etc/apt/keyrings/grafana.asc
+    mode: "0644"
+
+- name: Add Grafana apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/grafana.asc] https://apt.grafana.com stable main"
+    filename: grafana
+    state: present
+    update_cache: true
+
+- name: Install Grafana package
+  ansible.builtin.apt:
+    name: grafana
+    state: present
+    update_cache: true
+
+- name: Configure Grafana HTTP port
+  ansible.builtin.lineinfile:
+    path: /etc/grafana/grafana.ini
+    regexp: "^;?http_port ="
+    line: "http_port = {{ grafana_port }}"
+    insertafter: "^\\[server\\]"
+  notify: restart grafana-server
+
+- name: Ensure Grafana provisioning directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: grafana
+    group: grafana
+    mode: "0755"
+  loop:
+    - /etc/grafana/provisioning/datasources
+    - /etc/grafana/provisioning/dashboards
+    - "{{ grafana_dashboards_dir }}"
+
+- name: Provision Prometheus datasource
+  ansible.builtin.template:
+    src: datasource.yml.j2
+    dest: /etc/grafana/provisioning/datasources/prometheus.yml
+    owner: grafana
+    group: grafana
+    mode: "0644"
+  notify: restart grafana-server
+
+- name: Provision dashboard provider
+  ansible.builtin.template:
+    src: dashboard-provider.yml.j2
+    dest: /etc/grafana/provisioning/dashboards/dashboard.yml
+    owner: grafana
+    group: grafana
+    mode: "0644"
+  notify: restart grafana-server
+
+- name: Deploy CPU & Memory dashboard JSON
+  ansible.builtin.copy:
+    src: node_dashboard.json
+    dest: "{{ grafana_dashboards_dir }}/node_dashboard.json"
+    owner: grafana
+    group: grafana
+    mode: "0644"
+  notify: restart grafana-server
+
+- name: Enable and start Grafana
+  ansible.builtin.systemd:
+    name: grafana-server
+    enabled: true
+    state: started
+    daemon_reload: true

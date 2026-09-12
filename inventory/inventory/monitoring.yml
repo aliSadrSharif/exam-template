@@ -1,6 +1,7 @@
----
-monitoring:
-  hosts:
-    mon-1:
-      ansible_host: CHANGE_ME
-      ansible_user: CHANGE_ME
+all:
+  children:
+    monitoring:
+      hosts:
+        monitoring-01:
+          ansible_host: 95.38.165.81
+          ansible_user: root
