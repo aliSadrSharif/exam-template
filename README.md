@@ -69,6 +69,7 @@ vim nginx.conf #edit config
 vim docker-compose.yml #edit docker compose
 docker compose up -d
 docker compose ps #make sure everything works
+curl http://localhost #successful output
 ```
 
 
